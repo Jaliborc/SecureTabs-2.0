@@ -60,8 +60,8 @@ function Lib:Add(parent, panel, label)
 	end)
 
 	parent.numTabs = id
-	parent.secure:SetFrameRef('panel' .. id, panel)
-	parent.secure:SetAttribute('numTabs', parent.numTabs)
+	parent.secureTabs:SetFrameRef('panel' .. id, panel)
+	parent.secureTabs:SetAttribute('numTabs', parent.numTabs)
 	PanelTemplates_UpdateTabs(parent)
 
 	return tab
