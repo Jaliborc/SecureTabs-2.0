@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with SecureTabs. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Lib, Old = LibStub:NewLibrary('SecureTabs-1.0', 1)
+local Lib, Old = LibStub:NewLibrary('SecureTabs-1.0', 3)
 if not Lib then
 	return
 elseif not Old then
@@ -27,6 +27,10 @@ elseif not Old then
 end
 
 function Lib:Startup(parent, ...)
+	if parent.secureTabs then
+		return
+	end
+
 	local secure = CreateFrame('Frame', '$parentSecureTabs', parent, 'SecureHandlerAttributeTemplate')
 	for i = 1, select('#', ...) do
 		secure:SetFrameRef('panel' .. i, select(i, ...))
@@ -51,13 +55,18 @@ function Lib:Startup(parent, ...)
 end
 
 function Lib:Add(parent, panel, label)
-	local id = parent.numTabs + 1
+	local id = (parent.numTabs or 0) + 1
 	local tab = CreateFrame('Button', '$parentTab' .. id, parent, 'CharacterFrameTabButtonTemplate', id)
-	tab:SetPoint('LEFT', parent:GetName() .. 'Tab' .. (id-1), 'RIGHT', -16, 0)
 	tab:SetText(label)
 	tab:SetScript('OnClick', function(self)
 		PanelTemplates_SetTab(parent, id)
 	end)
+
+	if id > 1 then
+		tab:SetPoint('LEFT', parent:GetName() .. 'Tab' .. parent.numTabs, 'RIGHT', -16, 0)
+	else
+		tab:SetPoint('TOPLEFT', parent, 'BOTTOMLEFT', 11, 2)
+	end
 
 	parent.numTabs = id
 	parent.secureTabs:SetFrameRef('panel' .. id, panel)
