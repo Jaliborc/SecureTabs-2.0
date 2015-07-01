@@ -17,13 +17,11 @@ You should have received a copy of the GNU General Public License
 along with SecureTabs. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Lib, Old = LibStub:NewLibrary('SecureTabs-1.0', 3)
+local Lib, Old = LibStub:NewLibrary('SecureTabs-1.0', 5)
 if not Lib then
 	return
-elseif not Old then
-	hooksecurefunc('PanelTemplates_SetTab', function(parent)
-		Lib:Update(parent)
-	end)
+elseif Old then
+	Lib.Update = function() end
 end
 
 function Lib:Startup(parent, ...)
@@ -34,6 +32,9 @@ function Lib:Startup(parent, ...)
 	local secure = CreateFrame('Frame', '$parentSecureTabs', parent, 'SecureHandlerAttributeTemplate')
 	for i = 1, select('#', ...) do
 		secure:SetFrameRef('panel' .. i, select(i, ...))
+		secure[i] = _G[parent:GetName() .. 'Tab' .. i]
+		secure[i]:SetScript('OnClick',  self.OnClick)
+		secure[i].panel = select(i, ...)
 	end
 
 	secure:SetAttribute('_onattributechanged', [[
@@ -54,30 +55,39 @@ function Lib:Startup(parent, ...)
 	parent.secureTabs = secure
 end
 
-function Lib:Add(parent, panel, label)
-	local id = (parent.numTabs or 0) + 1
+function Lib:Add(parent, panel, label, anchor)
+	local numTabs = parent.numTabs or 0
+	local id = numTabs + 1
 	local tab = CreateFrame('Button', '$parentTab' .. id, parent, 'CharacterFrameTabButtonTemplate', id)
+	tab:SetScript('OnClick', self.OnClick)
 	tab:SetText(label)
-	tab:SetScript('OnClick', function(self)
-		PanelTemplates_SetTab(parent, id)
-	end)
 
-	if id > 1 then
-		tab:SetPoint('LEFT', parent:GetName() .. 'Tab' .. parent.numTabs, 'RIGHT', -16, 0)
-	else
-		tab:SetPoint('TOPLEFT', parent, 'BOTTOMLEFT', 11, 2)
+	if anchor then
+		for k = 1, numTabs do
+			if parent.secureTabs[k].panel == anchor then
+				anchor = k+1
+			end
+		end
 	end
 
 	parent.numTabs = id
 	parent.secureTabs:SetFrameRef('panel' .. id, panel)
 	parent.secureTabs:SetAttribute('numTabs', parent.numTabs)
+	tinsert(parent.secureTabs, anchor or numTabs, tab)
 	PanelTemplates_UpdateTabs(parent)
+
+	for k = 1, numTabs do
+		parent.secureTabs[k+1]:SetPoint('TOPLEFT', parent.secureTabs[k], 'TOPRIGHT', -16, 0)
+	end
+	parent.secureTabs[1]:SetPoint('TOPLEFT', parent, 'BOTTOMLEFT', 11, 2)
 
 	return tab
 end
 
-function Lib:Update(parent)
-	if parent.secureTabs then
+function Lib:OnClick()
+	local parent = self:GetParent()
+	if parent and parent.secureTabs then
+		PanelTemplates_SetTab(parent, self:GetID())
 		parent.secureTabs:SetAttribute('selected', parent.selectedTab)
 	end
 end
