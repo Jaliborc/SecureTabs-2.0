@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with SecureTabs. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Lib, Old = LibStub:NewLibrary('SecureTabs-1.0', 5)
+local Lib, Old = LibStub:NewLibrary('SecureTabs-1.0', 6)
 if not Lib then
 	return
 elseif Old then
@@ -60,6 +60,7 @@ function Lib:Add(parent, panel, label, anchor)
 	local id = numTabs + 1
 	local tab = CreateFrame('Button', '$parentTab' .. id, parent, 'CharacterFrameTabButtonTemplate', id)
 	tab:SetScript('OnClick', self.OnClick)
+	tab.Open = self.OnClick
 	tab:SetText(label)
 
 	if anchor then
