@@ -56,11 +56,11 @@ function Lib:Add(panel, frame, label)
 end
 
 function Lib:Select(tab)
-	self:Update(tab:GetParent(), tab)
-
-	if tab.OnClick then
-		tab:OnClick()
+	if tab.OnSelect then
+		tab:OnSelect()
 	end
+
+	self:Update(tab:GetParent(), tab)
 end
 
 
@@ -81,7 +81,9 @@ function Lib:Update(panel, selection)
 			PanelTemplates_DeselectTab(tab)
 		end
 
-		tab.frame:SetShown(selected)
+		if tab.frame then
+			tab.frame:SetShown(selected)
+		end
 	end
 
 	if panel.selectedTab then
@@ -100,7 +102,7 @@ function Lib:Update(panel, selection)
 
  		if selection then
 			cover:SetParent(tab)
-			cover:SetAllPoints(true)
+			cover:SetAllPoints(tab)
 			cover:SetText(tab:GetText())
 			PanelTemplates_TabResize(cover, 0, nil, 36, panel.maxTabWidth or 88)
 		end
