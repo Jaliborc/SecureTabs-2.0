@@ -1,5 +1,5 @@
 --[[
-Copyright 2013 João Cardoso
+Copyright 2013-2016 João Cardoso
 SecureTabs is distributed under the terms of the GNU General Public License (or the Lesser GPL).
 This file is part of SecureTabs.
 
@@ -17,78 +17,92 @@ You should have received a copy of the GNU General Public License
 along with SecureTabs. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Lib, Old = LibStub:NewLibrary('SecureTabs-1.0', 6)
+local Lib, old = LibStub:NewLibrary('SecureTabs-2.0', 1)
 if not Lib then
 	return
-elseif Old then
-	Lib.Update = function() end
+elseif not old then
+	hooksecurefunc('PanelTemplates_SetTab', function(panel, id) 
+		Lib:Update(panel)
+	end)
 end
 
-function Lib:Startup(parent, ...)
-	if parent.secureTabs then
-		return
-	end
+Lib.tabs = Lib.tabs or {}
+Lib.covers = Lib.covers or {}
 
-	local secure = CreateFrame('Frame', '$parentSecureTabs', parent, 'SecureHandlerAttributeTemplate')
-	for i = 1, select('#', ...) do
-		secure:SetFrameRef('panel' .. i, select(i, ...))
-		secure[i] = _G[parent:GetName() .. 'Tab' .. i]
-		secure[i]:SetScript('OnClick',  self.OnClick)
-		secure[i].panel = select(i, ...)
-	end
 
-	secure:SetAttribute('_onattributechanged', [[
-		if name == 'selected' then
-			for i = 1, self:GetAttribute('numTabs') do
-				local panel = self:GetFrameRef('panel' .. i)
-				if panel then
-					if i == value then
-						panel:Show()
-					else
-						panel:Hide()
-					end
-				end
-			end
-		end
-	]])
+--[[ Main API ]]--
 
-	parent.secureTabs = secure
-end
+function Lib:Add(panel, frame, label)
+	local secureTabs = self.tabs[panel] or {}
+	local id = #secureTabs
+	local anchor = id > 0 and 'SecureTab' .. (id-1) or 'Tab' .. panel.numTabs
 
-function Lib:Add(parent, panel, label, anchor)
-	local numTabs = parent.numTabs or 0
-	local id = numTabs + 1
-	local tab = CreateFrame('Button', '$parentTab' .. id, parent, 'CharacterFrameTabButtonTemplate', id)
-	tab:SetScript('OnClick', self.OnClick)
-	tab.Open = self.OnClick
+	local tab = CreateFrame('Button', '$parentSecureTab' .. id, panel, 'CharacterFrameTabButtonTemplate')
+	tab:SetPoint('LEFT', panel:GetName() .. anchor, 'RIGHT', -16, 0)
+	tab:SetScript('OnClick', function(tab) self:Select(tab) end)
 	tab:SetText(label)
+	tab.frame = frame
+	tinsert(secureTabs, tab)
+	PanelTemplates_DeselectTab(tab)
 
-	if anchor then
-		for k = 1, numTabs do
-			if parent.secureTabs[k].panel == anchor then
-				anchor = k+1
-			end
-		end
-	end
+	local cover = self.covers[panel] or CreateFrame('Button', '$parentCoverTab', panel, 'CharacterFrameTabButtonTemplate')
+	cover:SetScript('OnClick', function(tab) self:Update(panel) end)
+	PanelTemplates_DeselectTab(cover)
 
-	parent.numTabs = id
-	parent.secureTabs:SetFrameRef('panel' .. id, panel)
-	parent.secureTabs:SetAttribute('numTabs', parent.numTabs)
-	tinsert(parent.secureTabs, anchor or numTabs, tab)
-	PanelTemplates_UpdateTabs(parent)
-
-	for k = 1, numTabs do
-		parent.secureTabs[k+1]:SetPoint('TOPLEFT', parent.secureTabs[k], 'TOPRIGHT', -16, 0)
-	end
-	parent.secureTabs[1]:SetPoint('TOPLEFT', parent, 'BOTTOMLEFT', 11, 2)
+	self.tabs[panel] = secureTabs
+	self.covers[panel] = cover
 
 	return tab
 end
 
-function Lib:OnClick()
-	local parent = self:GetParent()
-	if parent and parent.secureTabs then
-		PanelTemplates_SetTab(parent, self:GetID())
-		parent.secureTabs:SetAttribute('selected', parent.selectedTab)
+function Lib:Select(tab)
+	self:Update(tab:GetParent(), tab)
+
+	if tab.OnClick then
+		tab:OnClick()
+	end
+end
+
+
+--[[ Advanced Methods ]]--
+
+function Lib:Update(panel, selection)
+	local secureTabs = self.tabs[panel]
+	if not secureTabs then
+		return
+	end
+
+	for i, tab in ipairs(secureTabs) do
+		local selected = tab == selection
+
+		if selected then
+			PanelTemplates_SelectTab(tab)
+		else
+			PanelTemplates_DeselectTab(tab)
+		end
+
+		tab.frame:SetShown(selected)
+	end
+
+	if panel.selectedTab then
+		local cover = self.covers[panel]
+		local tab = _G[panel:GetName() .. 'Tab'.. panel.selectedTab]
+
+		local tabname = tab:GetName()
+		local leftDisabled = tab.LeftDisabled or _G[tabname..'LeftDisabled']
+		local middleDisabled = tab.MiddleDisabled or _G[tabname..'MiddleDisabled']
+		local rightDisabled = tab.RightDisabled or _G[tabname..'RightDisabled']
+
+		cover:SetShown(selection)
+		leftDisabled:SetShown(not selection)
+		middleDisabled:SetShown(not selection)
+		rightDisabled:SetShown(not selection)
+
+ 		if selection then
+			cover:SetParent(tab)
+			cover:SetAllPoints(true)
+			cover:SetText(tab:GetText())
+			PanelTemplates_TabResize(cover, 0, nil, 36, panel.maxTabWidth or 88)
+		end
 	end
 end
