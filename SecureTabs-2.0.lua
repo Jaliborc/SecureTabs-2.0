@@ -74,15 +74,26 @@ function Lib:Update(panel, selection)
 
 	for i, tab in ipairs(secureTabs) do
 		local selected = tab == selection
-
 		if selected then
 			PanelTemplates_SelectTab(tab)
 		else
 			PanelTemplates_DeselectTab(tab)
 		end
 
-		if tab.frame then
-			tab.frame:SetShown(selected)
+		local frame = tab.frame
+		if frame then
+			frame:SetShown(selected)
+
+			if selected then
+				frame:SetParent(panel)
+				frame:EnableMouse(true)
+				frame:SetAllPoints(true)
+				frame:SetFrameLevel(panel:GetFrameLevel() + 20)
+
+				if frame.CloseButton then -- this could cause taint, must solve?
+					frame.CloseButton:SetScript('OnClick',  function() panel:Hide() end)
+				end
+			end
 		end
 	end
 
