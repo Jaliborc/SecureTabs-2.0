@@ -17,11 +17,11 @@ You should have received a copy of the GNU General Public License
 along with SecureTabs. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Lib, old = LibStub:NewLibrary('SecureTabs-2.0', 1)
+local Lib, old = LibStub:NewLibrary('SecureTabs-2.0', 2)
 if not Lib then
 	return
 elseif not old then
-	hooksecurefunc('PanelTemplates_SetTab', function(panel, id) 
+	hooksecurefunc('PanelTemplates_SetTab', function(panel, id)
 		Lib:Update(panel)
 	end)
 end
@@ -46,7 +46,7 @@ function Lib:Add(panel, frame, label)
 	PanelTemplates_DeselectTab(tab)
 
 	local cover = self.covers[panel] or CreateFrame('Button', '$parentCoverTab', panel, 'CharacterFrameTabButtonTemplate')
-	cover:SetScript('OnClick', function(tab) self:Update(panel) end)
+	cover:SetScript('OnClick', function(tab) self:Uncover(panel) end)
 	PanelTemplates_DeselectTab(cover)
 
 	self.tabs[panel] = secureTabs
@@ -60,11 +60,17 @@ function Lib:Select(tab)
 		tab:OnSelect()
 	end
 
+	PlaySound(SOUNDKIT.IG_CHARACTER_INFO_TAB)
 	self:Update(tab:GetParent(), tab)
 end
 
 
 --[[ Advanced Methods ]]--
+
+function Lib:Uncover(panel)
+	PlaySound(SOUNDKIT.IG_CHARACTER_INFO_TAB)
+	self:Update(panel)
+end
 
 function Lib:Update(panel, selection)
 	local secureTabs = self.tabs[panel]
