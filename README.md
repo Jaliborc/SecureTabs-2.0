@@ -21,3 +21,5 @@ tab.OnDeselect = function()
   print('A different tab was clicked!')
 end
 ```
+
+`MyFrame` is optional. You can manage behaviour yourself using `.OnSelect` and `OnDeselect`. Just make sure to not cause taint.
