@@ -2,6 +2,8 @@ name: tag
 
 on:
   push:
+    paths:
+      - SecureTabs-2.0.lua
     branches:
       - master
 
