@@ -1,5 +1,5 @@
 --[[
-Copyright 2013-2021 João Cardoso
+Copyright 2013-2022 João Cardoso
 SecureTabs is distributed under the terms of the GNU General Public License (or the Lesser GPL).
 This file is part of SecureTabs.
 
@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with SecureTabs. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Lib, old = LibStub:NewLibrary('SecureTabs-2.0', 2)
+local Lib, old = LibStub:NewLibrary('SecureTabs-2.0', 3)
 if not Lib then
 	return
 elseif not old then
@@ -96,10 +96,9 @@ function Lib:Update(panel, selection)
 				frame:SetAllPoints(true)
 				frame:SetFrameLevel(panel:GetFrameLevel() + 20)
 
-				if frame.CloseButton then -- this could cause taint, must solve?
-					frame.CloseButton:SetScript('OnClick',  function()
+				if frame.CloseButton then
+					frame.CloseButton:SetScript('OnClick', function() -- this could cause taint, how to solve?
 						if frame:GetParent() and frame:GetParent().CloseButton then
-							-- Closes the parent properly
 							UIPanelCloseButton_OnClick(frame:GetParent().CloseButton)
 						end
 						panel:Hide()
