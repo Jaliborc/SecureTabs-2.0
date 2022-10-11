@@ -115,9 +115,10 @@ function Lib:Update(panel, selection)
 		local cover = self.covers[panel]
 		local tab = _G[panel:GetName() .. 'Tab'.. panel.selectedTab]
 
-		local left = tab.LeftActive or tab.LeftDisabled
-		local middle = tab.MiddleActive or tab.MiddleDisabled
-		local right = tab.RightActive or tab.RightDisabled
+		local name = tab:GetName()
+		local left = tab.LeftActive or _G[name..'LeftDisabled']
+		local middle = tab.MiddleActive or _G[name..'MiddleDisabled']
+		local right = tab.RightActive or _G[name..'RightDisabled']
 
 		cover:SetShown(selection)
 		left:SetShown(not selection)
