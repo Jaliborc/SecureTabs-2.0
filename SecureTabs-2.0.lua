@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with SecureTabs. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Lib, old = LibStub:NewLibrary('SecureTabs-2.0', 6)
+local Lib, old = LibStub:NewLibrary('SecureTabs-2.0', 7)
 if not Lib then
 	return
 elseif not old then
@@ -104,7 +104,7 @@ function Lib:Update(panel, selection)
 							original:GetScript('OnClick')(original) -- make sure any additional behaviour is replicated
 						end
 
-						panel:Hide() -- this could cause taint, how to solve?
+						HideUIPanel(frame) -- safest hiding method
 					end)
 				end
 			end
