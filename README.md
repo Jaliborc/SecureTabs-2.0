@@ -28,5 +28,5 @@ end
 
 `MyFrame` is optional. You can manage behaviour yourself using `.OnSelect` and `OnDeselect`. Just make sure to not cause taint if you do.
 
-### To Devs
+### :warning: Reminder!
 If you use this library, please list it as one of your dependencies in the CurseForge admin system. It's a big help! :+1:
