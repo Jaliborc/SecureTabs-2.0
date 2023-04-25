@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with SecureTabs. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Lib, old = LibStub:NewLibrary('SecureTabs-2.0', 7)
+local Lib, old = LibStub:NewLibrary('SecureTabs-2.0', 8)
 if not Lib then
 	return
 elseif not old then
@@ -47,7 +47,7 @@ function Lib:Add(panel, frame, label)
 	PanelTemplates_DeselectTab(tab)
 
 	local cover = self.covers[panel] or CreateFrame('Button', '$parentCoverTab', panel, self.template)
-	cover:SetScript('OnClick', function(tab) self:Uncover(panel) end)
+	cover:HookScript('OnClick', function() self:Uncover(panel, tab) end)
 	PanelTemplates_DeselectTab(cover)
 
 	self.tabs[panel] = secureTabs
@@ -68,7 +68,11 @@ end
 
 --[[ Advanced Methods ]]--
 
-function Lib:Uncover(panel)
+function Lib:Uncover(panel, tab)
+    if tab.OnDeselect then
+        tab:OnDeselect()
+    end
+    
 	PlaySound(SOUNDKIT.IG_CHARACTER_INFO_TAB)
 	self:Update(panel)
 end
