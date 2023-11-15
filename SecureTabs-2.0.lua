@@ -28,7 +28,7 @@ end
 
 Lib.tabs = Lib.tabs or {}
 Lib.covers = Lib.covers or {}
-Lib.template = PanelTabButtonMixin and 'PanelTabButtonTemplate' or 'CharacterFrameTabButtonTemplate'
+Lib.template = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and 'PanelTabButtonTemplate' or 'CharacterFrameTabButtonTemplate'
 
 
 --[[ Main API ]]--
