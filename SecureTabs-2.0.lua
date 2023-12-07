@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with SecureTabs. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Lib, old = LibStub:NewLibrary('SecureTabs-2.0', 7)
+local Lib, old = LibStub:NewLibrary('SecureTabs-2.0', 8)
 if not Lib then
 	return
 elseif not old then
@@ -101,7 +101,7 @@ function Lib:Update(panel, selection)
 					frame.CloseButton:SetScript('OnClick', function()
 						local original = frame:GetParent() and frame:GetParent().CloseButton
 						if original then
-							original:GetScript('OnClick')(original) -- make sure any additional behaviour is replicated
+							ExecuteFrameScript(original, 'OnClick') -- make sure any additional behaviour is replicated
 						end
 
 						HideUIPanel(frame) -- safest hiding method
