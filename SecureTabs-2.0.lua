@@ -91,15 +91,15 @@ function Lib:Update(panel, selection)
 				frame:SetAllPoints(true)
 				frame:SetFrameLevel(panel:GetFrameLevel() + 20)
 
-				if frame.CloseButton then
-					frame.CloseButton:SetScript('OnClick', function()
-						local original = frame:GetParent() and frame:GetParent().CloseButton
-						if original then
-							ExecuteFrameScript(original, 'OnClick') -- make sure any additional behaviour is replicated
-						end
+				local close = frame.CloseButton
+				if close and not close.Relay then
+					local relay = CreateFrame('Button', '$parentSecureRelay', close, 'SecureActionButtonTemplate')
+					relay:SetAttribute('macrotext', format('/run HideUIPanel(%s)', (frame:GetParent() or frame):GetName()))
+					relay:RegisterForClicks('anyUp', 'anyDown')
+					relay:SetAttribute('type', 'macro')
+					relay:SetAllPoints()
 
-						HideUIPanel(frame) -- safest hiding method
-					end)
+					close.Relay = relay
 				end
 			end
 		end
