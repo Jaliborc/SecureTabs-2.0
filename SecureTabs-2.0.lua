@@ -39,10 +39,11 @@ function Lib:Add(panel, frame, label)
 	local anchor = id > 0 and 'SecureTab' .. (id-1) or 'Tab' .. panel.numTabs
 
 	local tab = CreateFrame('Button', '$parentSecureTab' .. id, panel, self.template)
-	tab:SetPoint('LEFT', panel:GetName() .. anchor, 'RIGHT', WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and 3 or -16, 0)
-	tab:SetScript('OnClick', function(tab) self:Select(tab) end)
-	tab:SetText(label)
 	tab.frame = frame
+	tab.Select = function(tab) self:Select(tab) end
+	tab:SetPoint('LEFT', panel:GetName() .. anchor, 'RIGHT', WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and 3 or -16, 0)
+	tab:SetScript('OnClick', tab.Select)
+	tab:SetText(label)
 	tinsert(secureTabs, tab)
 	PanelTemplates_DeselectTab(tab)
 
