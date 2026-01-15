@@ -13,9 +13,7 @@ As such, you should create a frame that covers the original content. When your t
 This code adds a tab to the `MerchantFrame`, which manages displaying a custom `MyFrame` whenever the tab is selected:
 
 ```
-local tab = LibStub('SecureTabs-2.0'):Add(MerchantFrame)
-tab:SetText('My Tab Title')
-tab.frame = MyFrame
+local tab = LibStub('SecureTabs-2.0'):Add(MerchantFrame, MyFrame, My Tab Title)
 
 tab.OnSelect = function()
   print('Tab was clicked!')
