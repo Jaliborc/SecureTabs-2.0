@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with SecureTabs. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Lib, old = LibStub:NewLibrary('SecureTabs-2.0', 13)
+local Lib, old = LibStub:NewLibrary('SecureTabs-2.0', 14)
 if not Lib then
 	return
 elseif not old then
@@ -72,12 +72,12 @@ function Lib:Update(panel, selection)
 	for i, tab in ipairs(secureTabs) do
 		local selected = tab == selection
 		if selected then
-			if not tab.active and tab.OnSelect then
-				tab:OnSelect()
+			if tab:IsEnabled() and tab.OnSelect then
+				xpcall(tab.OnSelect, CallErrorHandler, tab)
 			end
 		else
-			if tab.active and tab.OnDeselect then
-				tab:OnDeselect()
+			if not tab:IsEnabled() and tab.OnDeselect then
+				xpcall(tab.OnDeselect, CallErrorHandler, tab)
 			end
 		end
 
@@ -105,7 +105,6 @@ function Lib:Update(panel, selection)
 		end
 
 		(tab == selection and PanelTemplates_SelectTab or PanelTemplates_DeselectTab)(tab)
-		tab.active = selected
 	end
 
 	if panel.selectedTab then
