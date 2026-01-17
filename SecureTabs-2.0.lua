@@ -1,5 +1,5 @@
 --[[
-Copyright 2013-2025 João Cardoso
+Copyright 2013-2026 João Cardoso
 SecureTabs is distributed under the terms of the GNU General Public License (or the Lesser GPL).
 This file is part of SecureTabs.
 
