@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with SecureTabs. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Lib, old = LibStub:NewLibrary('SecureTabs-2.0', 14)
+local Lib, old = LibStub:NewLibrary('SecureTabs-2.0', 15)
 if not Lib then
 	return
 elseif not old then
@@ -42,6 +42,7 @@ function Lib:Add(panel, frame, label)
 	tab.frame = frame
 	tab.Select = function(tab) self:Select(tab) end
 	tab:SetPoint('LEFT', panel:GetName() .. anchor, 'RIGHT', WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and 3 or -16, 0)
+	tab:SetFrameLevel(panel:GetFrameLevel() + 610)
 	tab:SetScript('OnClick', tab.Select)
 	tab:SetText(label)
 	tinsert(secureTabs, tab)
@@ -90,17 +91,10 @@ function Lib:Update(panel, selection)
 				frame:SetParent(panel)
 				frame:EnableMouse(true)
 				frame:SetAllPoints(true)
-				frame:SetFrameLevel(panel:GetFrameLevel() + 20)
+				frame:SetFrameLevel(panel:GetFrameLevel() + 600)
 
-				if frame.CloseButton then
-					frame.CloseButton:SetScript('OnClick', function() -- could never find an 100% taint free method for this
-						local original = frame:GetParent() and frame:GetParent().CloseButton
-						if original then
-							ExecuteFrameScript(original, 'OnClick') -- make sure any additional behaviour is replicated
-						end
-
-						HideUIPanel(frame) -- safest hiding method
-					end)
+				if frame.CloseButton and panel.CloseButton then
+					panel.CloseButton:SetFrameLevel(frame.CloseButton:GetFrameLevel() + 10)
 				end
 			end
 		end
