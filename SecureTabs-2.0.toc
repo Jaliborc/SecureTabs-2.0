@@ -1,0 +1,7 @@
+## Title: SecureTabs
+## Notes: Allows addons to add native looking tabs to UI panels without causing taint nor addon conflicts.
+## Author: Jaliborc (João Cardoso)
+## Category: Libraries
+## Dependencies: LibStub
+
+SecureTabs-2.0.lua

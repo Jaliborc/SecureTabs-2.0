@@ -3,10 +3,10 @@
 [![Paypal](http://img.shields.io/badge/donate-paypal-1d3fe5)](https://www.paypal.me/jaliborc)
 [![Discord](http://img.shields.io/badge/discuss-discord-5865F2)](https://bit.ly/discord-jaliborc)
 
-Adds functional blizzard looking tabs to secure panels without causing taint.
+Adds native looking tabs to UI panels without causing taint, and allows multiple addons to add tabs to the same panel without conflict. 
 
-:bulb: Note that it is not possible to hide the original content of the panel without causing taint.
-As such, you should create a frame that covers the original content. When your tab is selected, your frame will be shown and the end result will be the same.
+:bulb: Note that it is unreliable to hide the original content of the panel without potentially causing taint, blocked actions or interference with the default UI behaviour.
+As such, you should create a frame that covers the original content. When your tab is selected, your frame will be shown over it and the end result will be the same.
 
 
 ### Usage Example
