@@ -5,8 +5,8 @@
 
 Adds native looking tabs to UI panels without causing taint, and allows multiple addons to add tabs to the same panel without conflict. 
 
-:bulb: Note that it is unreliable to hide the original content of the panel without potentially causing taint, blocked actions or interference with the default UI behaviour.
-As such, you should create a frame that covers the original content. When your tab is selected, your frame will be shown over it and the end result will be the same.
+:bulb: _Note that it is unreliable to hide the original content of the panel without potentially causing taint, blocked actions or interference with the default UI behaviour.
+As such, you should create a frame that covers the original content. When your tab is selected, your frame will be shown over it and the end result will be the same._
 
 
 ### Usage Example
