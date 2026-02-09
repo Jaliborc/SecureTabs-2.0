@@ -1,5 +1,6 @@
 ## Title: SecureTabs
 ## Notes: Allows addons to add native looking tabs to UI panels without causing taint nor addon conflicts.
+## Interface: 120001, 120000, 50501, 40402, 30404, 20505, 11507
 ## Author: Jaliborc (João Cardoso)
 ## Category: Libraries
 ## Dependencies: LibStub
