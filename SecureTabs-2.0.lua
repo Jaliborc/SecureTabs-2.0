@@ -28,7 +28,7 @@ end
 
 Lib.tabs = Lib.tabs or {}
 Lib.covers = Lib.covers or {}
-Lib.template = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and 'PanelTabButtonTemplate' or 'CharacterFrameTabButtonTemplate'
+Lib.template = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or WOW_PROJECT_ID == WOW_PROJECT_CAMELOT) and 'PanelTabButtonTemplate' or 'CharacterFrameTabButtonTemplate'
 
 
 --[[ Main API ]]--
@@ -41,7 +41,7 @@ function Lib:Add(panel, frame, label)
 	local tab = CreateFrame('Button', '$parentSecureTab' .. id, panel, self.template)
 	tab.frame = frame
 	tab.Select = function(tab) self:Select(tab) end
-	tab:SetPoint('LEFT', panel:GetName() .. anchor, 'RIGHT', WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and 3 or -16, 0)
+	tab:SetPoint('LEFT', panel:GetName() .. anchor, 'RIGHT', (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or WOW_PROJECT_ID == WOW_PROJECT_CAMELOT) and 3 or -16, 0)
 	tab:SetFrameLevel(panel:GetFrameLevel() + 610)
 	tab:SetScript('OnClick', tab.Select)
 	tab:SetText(label)
