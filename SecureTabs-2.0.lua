@@ -28,9 +28,16 @@ end
 
 Lib.tabs = Lib.tabs or {}
 Lib.covers = Lib.covers or {}
--- WoW Forever uses modern tab templates.
-local modernTabs = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or
-	(C_XMLUtil and C_XMLUtil.GetTemplateInfo and not C_XMLUtil.GetTemplateInfo('CharacterFrameTabButtonTemplate'))
+-- Some non-mainline clients (e.g. WoW Forever) ship only the modern tab template.
+-- Returns nil when the template registry can't answer, so we keep legacy behavior.
+local function hasTemplate(name)
+	if C_XMLUtil and C_XMLUtil.GetTemplateInfo then
+		local ok, info = pcall(C_XMLUtil.GetTemplateInfo, name)
+		if ok then return info ~= nil end
+	end
+end
+
+local modernTabs = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or hasTemplate('CharacterFrameTabButtonTemplate') == false
 Lib.template = modernTabs and 'PanelTabButtonTemplate' or 'CharacterFrameTabButtonTemplate'
 
 
@@ -40,6 +47,8 @@ function Lib:Add(panel, frame, label)
 	local secureTabs = self.tabs[panel] or {}
 	local id = #secureTabs
 	local anchor = secureTabs[id] or (panel.Tabs and panel.Tabs[panel.numTabs]) or _G[panel:GetName() .. 'Tab' .. panel.numTabs]
+
+	assert(anchor, 'SecureTabs-2.0: no tab to anchor to on ' .. tostring(panel:GetName()))
 
 	local tab = CreateFrame('Button', '$parentSecureTab' .. id, panel, self.template)
 	tab.frame = frame
@@ -109,17 +118,17 @@ function Lib:Update(panel, selection)
 		local cover = self.covers[panel]
 		local tab = (panel.Tabs and panel.Tabs[panel.selectedTab]) or _G[panel:GetName() .. 'Tab'.. panel.selectedTab]
 
-		local name = tab:GetName()
-		local left = tab.LeftActive or _G[name..'LeftDisabled']
-		local middle = tab.MiddleActive or _G[name..'MiddleDisabled']
-		local right = tab.RightActive or _G[name..'RightDisabled']
+		local name = tab and tab:GetName()
+		local left = tab and (tab.LeftActive or name and _G[name..'LeftDisabled'])
+		local middle = tab and (tab.MiddleActive or name and _G[name..'MiddleDisabled'])
+		local right = tab and (tab.RightActive or name and _G[name..'RightDisabled'])
 
-		cover:SetShown(selection)
-		left:SetShown(not selection)
-		middle:SetShown(not selection)
-		right:SetShown(not selection)
+		cover:SetShown(selection and left)
+		if left then left:SetShown(not selection) end
+		if middle then middle:SetShown(not selection) end
+		if right then right:SetShown(not selection) end
 
- 		if selection then
+ 		if selection and left then
 			cover:SetParent(tab)
 			cover:SetAllPoints(tab)
 			cover:SetText(tab:GetText())
