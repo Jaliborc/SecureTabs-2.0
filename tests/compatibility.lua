@@ -96,7 +96,7 @@ local function test(name, fn)
 end
 
 test('Regression: opening Scrap on WoW Forever without the legacy tab template', function()
-	-- The reported Classic beta uses project ID 18 and has only the modern template.
+	-- The reported WoW Forever beta uses project ID 18 and has only the modern template.
 	local env, lib, state, panel, nativeTabs, overlay = setup('modern', 'full', nil, false, false, 18)
 	equal(env.C_XMLUtil.GetTemplateInfo('CharacterFrameTabButtonTemplate'), nil)
 	assert(env.C_XMLUtil.GetTemplateInfo('PanelTabButtonTemplate'))
@@ -121,8 +121,8 @@ test('Regression: opening Scrap on WoW Forever without the legacy tab template',
 	equal(nativeTabs[1].LeftActive.shown, true)
 end)
 
-test('Classic beta uses available template for tab and cover with modern spacing', function()
-	local _, lib, state, panel, nativeTabs = setup('modern', 'full')
+test('WoW Forever uses available template for tab and cover with modern spacing', function()
+	local _, lib, state, panel, nativeTabs = setup('modern', 'full', nil, false, false, 18)
 	local tab = lib:Add(panel, nil, 'Scrap')
 	equal(state.version, 16)
 	equal(#state.created, 2)

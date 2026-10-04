@@ -28,7 +28,7 @@ end
 
 Lib.tabs = Lib.tabs or {}
 Lib.covers = Lib.covers or {}
--- Classic clients can use the modern tab templates too.
+-- WoW Forever uses modern tab templates.
 local modernTabs = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or
 	(C_XMLUtil and C_XMLUtil.GetTemplateInfo and not C_XMLUtil.GetTemplateInfo('CharacterFrameTabButtonTemplate'))
 Lib.template = modernTabs and 'PanelTabButtonTemplate' or 'CharacterFrameTabButtonTemplate'

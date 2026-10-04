@@ -6,7 +6,7 @@ Run from the repository root with Lua 5.1 or LuaJIT:
 lua tests/compatibility.lua
 ```
 
-The regression test models WoW Forever's Classic project ID 18 with
+The regression test models WoW Forever's project ID 18 with
 `PanelTabButtonTemplate` available and `CharacterFrameTabButtonTemplate` absent.
 The mocked `CreateFrame` rejects unavailable templates with the reported error.
 The test creates Scrap's merchant tab and cover, clicks the tab, and clicks the
