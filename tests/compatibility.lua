@@ -1,17 +1,17 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 -- Run from the repository root with a Lua 5.1-compatible interpreter.
-local source = 'SecureTabs-2.0.lua'
+local source = (arg and arg[1]) or 'SecureTabs-2.0.lua'
 local passed = 0
 
 local function equal(actual, expected)
 	assert(actual == expected, 'Expected ' .. tostring(expected) .. ', got ' .. tostring(actual))
 end
 
-local function setup(style, registry, path, retail, arrayOnly)
+local function setup(style, registry, path, retail, arrayOnly, projectID)
 	local state = {created = {}, hooks = {}, sounds = 0}
 	local lib = {}
 	local env = setmetatable({
-		WOW_PROJECT_ID = retail and 1 or 2, WOW_PROJECT_MAINLINE = 1,
+		WOW_PROJECT_ID = projectID or (retail and 1 or 2), WOW_PROJECT_MAINLINE = 1,
 		tinsert = table.insert, SOUNDKIT = {IG_CHARACTER_INFO_TAB = 1},
 		PlaySound = function() state.sounds = state.sounds + 1 end,
 		CallErrorHandler = function(err) error(err) end,
@@ -94,6 +94,32 @@ local function test(name, fn)
 	passed = passed + 1
 	print('PASS: ' .. name)
 end
+
+test('Regression: opening Scrap on WoW Forever without the legacy tab template', function()
+	-- The reported Classic beta uses project ID 18 and has only the modern template.
+	local env, lib, state, panel, nativeTabs, overlay = setup('modern', 'full', nil, false, false, 18)
+	equal(env.C_XMLUtil.GetTemplateInfo('CharacterFrameTabButtonTemplate'), nil)
+	assert(env.C_XMLUtil.GetTemplateInfo('PanelTabButtonTemplate'))
+
+	-- This call raised "Couldn't find inherited node 'CharacterFrameTabButtonTemplate'".
+	local tab = lib:Add(panel, overlay, 'Scrap')
+	equal(#state.created, 2)
+	equal(tab.template, 'PanelTabButtonTemplate')
+	equal(lib.covers[panel].template, 'PanelTabButtonTemplate')
+
+	-- Opening and closing Scrap must leave the native merchant tab usable.
+	tab.OnClick(tab)
+	equal(overlay.shown, true)
+	equal(tab.enabled, false)
+	equal(lib.covers[panel].shown, true)
+	equal(lib.covers[panel].parent, nativeTabs[1])
+	equal(nativeTabs[1].LeftActive.shown, false)
+	lib.covers[panel].OnClick()
+	equal(overlay.shown, false)
+	equal(tab.enabled, true)
+	equal(lib.covers[panel].shown, false)
+	equal(nativeTabs[1].LeftActive.shown, true)
+end)
 
 test('Classic beta uses available template for tab and cover with modern spacing', function()
 	local _, lib, state, panel, nativeTabs = setup('modern', 'full')
