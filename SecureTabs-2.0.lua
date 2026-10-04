@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with SecureTabs. If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local Lib, old = LibStub:NewLibrary('SecureTabs-2.0', 15)
+local Lib, old = LibStub:NewLibrary('SecureTabs-2.0', 16)
 if not Lib then
 	return
 elseif not old then
@@ -28,7 +28,17 @@ end
 
 Lib.tabs = Lib.tabs or {}
 Lib.covers = Lib.covers or {}
-Lib.template = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and 'PanelTabButtonTemplate' or 'CharacterFrameTabButtonTemplate'
+-- Some non-mainline clients (e.g. WoW Forever) ship only the modern tab template.
+-- Returns nil when the template registry can't answer, so we keep legacy behavior.
+local function hasTemplate(name)
+	if C_XMLUtil and C_XMLUtil.GetTemplateInfo then
+		local ok, info = pcall(C_XMLUtil.GetTemplateInfo, name)
+		if ok then return info ~= nil end
+	end
+end
+
+local modernTabs = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or hasTemplate('CharacterFrameTabButtonTemplate') == false
+Lib.template = modernTabs and 'PanelTabButtonTemplate' or 'CharacterFrameTabButtonTemplate'
 
 
 --[[ Main API ]]--
@@ -36,12 +46,14 @@ Lib.template = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and 'PanelTabButtonTemplat
 function Lib:Add(panel, frame, label)
 	local secureTabs = self.tabs[panel] or {}
 	local id = #secureTabs
-	local anchor = id > 0 and 'SecureTab' .. (id-1) or 'Tab' .. panel.numTabs
+	local anchor = secureTabs[id] or (panel.Tabs and panel.Tabs[panel.numTabs]) or _G[panel:GetName() .. 'Tab' .. panel.numTabs]
+
+	assert(anchor, 'SecureTabs-2.0: no tab to anchor to on ' .. tostring(panel:GetName()))
 
 	local tab = CreateFrame('Button', '$parentSecureTab' .. id, panel, self.template)
 	tab.frame = frame
 	tab.Select = function(tab) self:Select(tab) end
-	tab:SetPoint('LEFT', panel:GetName() .. anchor, 'RIGHT', WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and 3 or -16, 0)
+	tab:SetPoint('LEFT', anchor, 'RIGHT', modernTabs and 3 or -16, 0)
 	tab:SetFrameLevel(panel:GetFrameLevel() + 610)
 	tab:SetScript('OnClick', tab.Select)
 	tab:SetText(label)
@@ -104,19 +116,19 @@ function Lib:Update(panel, selection)
 
 	if panel.selectedTab then
 		local cover = self.covers[panel]
-		local tab = _G[panel:GetName() .. 'Tab'.. panel.selectedTab]
+		local tab = (panel.Tabs and panel.Tabs[panel.selectedTab]) or _G[panel:GetName() .. 'Tab'.. panel.selectedTab]
 
-		local name = tab:GetName()
-		local left = tab.LeftActive or _G[name..'LeftDisabled']
-		local middle = tab.MiddleActive or _G[name..'MiddleDisabled']
-		local right = tab.RightActive or _G[name..'RightDisabled']
+		local name = tab and tab:GetName()
+		local left = tab and (tab.LeftActive or name and _G[name..'LeftDisabled'])
+		local middle = tab and (tab.MiddleActive or name and _G[name..'MiddleDisabled'])
+		local right = tab and (tab.RightActive or name and _G[name..'RightDisabled'])
 
-		cover:SetShown(selection)
-		left:SetShown(not selection)
-		middle:SetShown(not selection)
-		right:SetShown(not selection)
+		cover:SetShown(selection and left)
+		if left then left:SetShown(not selection) end
+		if middle then middle:SetShown(not selection) end
+		if right then right:SetShown(not selection) end
 
- 		if selection then
+ 		if selection and left then
 			cover:SetParent(tab)
 			cover:SetAllPoints(tab)
 			cover:SetText(tab:GetText())
